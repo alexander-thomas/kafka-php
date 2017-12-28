@@ -103,6 +103,7 @@ abstract class ProducerTest extends \PHPUnit\Framework\TestCase
         );
         self::assertSame(self::MESSAGES_TO_SEND, $consumedMessages);
         print_r($consumedMessages);
+        print_r(self::MESSAGES_TO_SEND);
     }
 
     private function configureConsumer(): void
