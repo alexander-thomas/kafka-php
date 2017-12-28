@@ -74,34 +74,9 @@ abstract class ProducerTest extends \PHPUnit\Framework\TestCase
         $consumer = new \Kafka\Consumer(
             new Callback(
                 function () use (&$consumedMessages, $executionEnd): bool {
-                    return $consumedMessages >= self::MESSAGES_TO_SEND || new \DateTimeImmutable() > $executionEnd;
+                    return $consumedMessages >= 15 || new \DateTimeImmutable() > $executionEnd;
                 }
             )
-        );
-
-        $consumer->start(
-            function (string $topic, int $partition, array $message) use (&$consumedMessages) {
-                self::assertSame($this->topic, $topic);
-                self::assertLessThan(3, $partition);
-                self::assertArrayHasKey('offset', $message);
-                self::assertArrayHasKey('size', $message);
-                self::assertArrayHasKey('message', $message);
-                self::assertArrayHasKey('crc', $message['message']);
-                self::assertArrayHasKey('magic', $message['message']);
-                self::assertArrayHasKey('attr', $message['message']);
-                self::assertArrayHasKey('key', $message['message']);
-                self::assertArrayHasKey('value', $message['message']);
-                self::assertContains('msg-', $message['message']['value']);
-
-                if (version_compare($this->version, '0.10.0', '>=')) {
-                    self::assertArrayHasKey('timestamp', $message['message']);
-                    self::assertNotEquals(-1, $message['message']['timestamp']);
-                }
-
-                ++$consumedMessages;
-                if($consumedMessages > 15)
-                    exit;
-            }
         );
 
         $consumer->start(
@@ -127,6 +102,7 @@ abstract class ProducerTest extends \PHPUnit\Framework\TestCase
             }
         );
         self::assertSame(self::MESSAGES_TO_SEND, $consumedMessages);
+        print_r($consumedMessages);
     }
 
     private function configureConsumer(): void
